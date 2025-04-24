@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prom Invitation</title>
+  <style>
+    body {
+      background-color: #f8d7da;
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAQAAADwGJeQAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABv0lEQVRIDbXWzUtCURTF8X+IVs3FFIpNLYZyBVWhIksrJjY2FhYWHkBFbOxsZGxsbGRsRCHyIvGQk+Rsk5Ey23vQ7ezP/53WvV8/zPOY7gAWcY+nnFxwzCn0mzwP+ZDXgzRyxK/CXQyrIGfAdOjXpmcD0tFngDl6O6GF2HzHlINz6AIbUjHc5/wDFp6tYE/FKzXBxlmEGqMoFfBppwy3AKvi0VdwUdbGzI9SLeRNgp4nqYwCV2lso9bIqcbJfxNcgFa5hsptGqHzA8ooX5uM8BmeX6AZsYXxHdqYl+m9X7NJ8HKMPsmx10zTgsz8vuwiRYpNqqcTjHHvE+nNnhffgG3Kdb4Y04RuNGLc+wbvAz8uOVeFbBamU1Ku+bd7KHJntFmnMT1K5TmWtOGU2p1u8DK1o8h5W7n8RKoTcW6GTxMAAAAASUVORK5CYII=');
+      background-repeat: repeat;
+      background-size: 50px;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 1;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    .button-wrapper {
+      position: relative;
+      height: 100px;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      position: absolute;
+      transition: transform 0.2s ease;
+    }
+
+    .yes {
+      background-color: #8ed1fc;
+      left: 20%;
+      top: 0;
+    }
+
+    .no {
+      background-color: #f5a8b8;
+      left: 60%;
+      top: 0;
+    }
+
+    #response {
+      margin-top: 30px;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div class="container" id="container">
+  <h1 id="questionText">Will you go to prom with me?</h1>
+  <div class="button-wrapper" id="buttonWrapper">
+    <button class="yes" id="yesButton">Yes</button>
+    <button class="no" id="noButton">No</button>
+  </div>
+  <p id="response"></p>
+</div>
+
+<script>
+  const noBtn = document.getElementById("noButton");
+  const yesBtn = document.getElementById("yesButton");
+  const wrapper = document.getElementById("buttonWrapper");
+  const response = document.getElementById("response");
+  const questionText = document.getElementById("questionText");
+
+  // Yes button click
+  yesBtn.addEventListener("click", (e) => {
+    if (e.target.id !== "yesButton") return;
+    response.innerHTML = "YAYYY!<br>I can’t wait to see you Rosita!";
+    questionText.style.display = "none";
+    yesBtn.style.display = "none";
+    noBtn.style.display = "none";
+    response.style.display = "block";
+    startConfetti();
+  });
+
+  // Move "No" button on hover
+  noBtn.addEventListener("mouseover", () => {
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const noWidth = noBtn.offsetWidth;
+    const noHeight = noBtn.offsetHeight;
+
+    const maxX = wrapper.clientWidth - noWidth;
+    const maxY = wrapper.clientHeight - noHeight;
+
+    const randX = Math.random() * maxX;
+    const randY = Math.random() * maxY;
+
+    noBtn.style.left = `${randX}px`;
+    noBtn.style.top = `${randY}px`;
+  });
+
+  // Confetti animation
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const confettiCount = 150;
+  const confetti = [];
+
+  function randomColor() {
+    const colors = ['#FF69B4', '#FFD700', '#87CEFA', '#FFB6C1', '#98FB98'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  function createConfettiPiece() {
+    return {
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      r: Math.random() * 6 + 4,
+      d: Math.random() * confettiCount,
+      color: randomColor(),
+      tilt: Math.floor(Math.random() * 10) - 10,
+      tiltAngle: 0,
+      tiltAngleIncremental: (Math.random() * 0.07) + 0.05
+    };
+  }
+
+  function startConfetti() {
+    for (let i = 0; i < confettiCount; i++) {
+      confetti.push(createConfettiPiece());
+    }
+    requestAnimationFrame(drawConfetti);
+  }
+
+  function drawConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confetti.forEach(confettiPiece => {
+      confettiPiece.tiltAngle += confettiPiece.tiltAngleIncremental;
+      confettiPiece.y += Math.cos(confettiPiece.d) + 1 + confettiPiece.r / 2;
+      confettiPiece.tilt = Math.sin(confettiPiece.tiltAngle) * 15;
+
+      if (confettiPiece.y > canvas.height) {
+        confettiPiece.y = -10;
+        confettiPiece.x = Math.random() * canvas.width;
+      }
+
+      ctx.beginPath();
+      ctx.lineWidth = confettiPiece.r;
+      ctx.strokeStyle = confettiPiece.color;
+      ctx.moveTo(confettiPiece.x + confettiPiece.tilt + confettiPiece.r / 2, confettiPiece.y);
+      ctx.lineTo(confettiPiece.x + confettiPiece.tilt, confettiPiece.y + confettiPiece.tilt + confettiPiece.r / 2);
+      ctx.stroke();
+    });
+
+    requestAnimationFrame(drawConfetti);
+  }
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+</script>
+
+</body>
+</html>
